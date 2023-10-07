@@ -13,7 +13,7 @@
 
 .box:hover {
     background-color:rgb(11, 99, 129) ;
-    border-color: coral;
+    border-color: rgb(75, 67, 64);
 }
 
 .box-content {

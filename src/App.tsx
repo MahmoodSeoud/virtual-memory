@@ -31,10 +31,13 @@ function App() {
   const [sizeOfBytes, setSizeOfBytes] = useState<number>(0)
   const [boxes, setBoxes] = useState<IAddressBox[]>(initial_boxes)
   const [highlightedBoxes, setHighlightedBoxes] = useState<IAddressBox[]>([])
+  const [showError, setShowError] = useState<boolean>(false)
 
   useEffect(() => {
-    console.log(selectedBoxes)
-  }, [0])
+    console.log(selectedBoxes);
+    setShowError(false);
+    console.log(showError);
+  }, [sizeOfBytes])
 
 
   function handleClickOnBox(box: IAddressBox) {
@@ -68,6 +71,8 @@ function App() {
     if (sizeOfBytes > 0 && AllocationIsPossible) {
       // set the color
       setSelectedBoxes([...selectedBoxes, ...possible]);
+    } else {
+      setShowError(true);
     }
   }
 
@@ -83,7 +88,15 @@ function App() {
 
   return (
     <>
+        {/* Error msg incase of too many bytes */}
+        {showError &&
+          <div className='error-container'>
+            <p className='error-msg'>
+              Not enough space for {sizeOfBytes} bytes
+            </p>
+          </div>}
       <div className='main-frame'>
+
         <div className='virtual-memory-container'>
           {boxes && boxes.length > 0 && boxes.map((box) =>
             <Box
@@ -114,6 +127,8 @@ function App() {
           <input
             onChange={(ev) => setSizeOfBytes(Number(ev.target.value))}
             className='input-bits'
+            autoFocus
+            placeholder='32'
 
           />
         </div>
