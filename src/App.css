@@ -74,7 +74,7 @@
 
 .authors {
   position: absolute;
-  bottom: 0;
+  bottom: 1;
   right: 1;
   font-family: 'Lobster', cursive;
 }

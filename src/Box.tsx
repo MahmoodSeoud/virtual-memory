@@ -1,24 +1,32 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IAddressBox } from './App';
 import './Box.css'
 
 interface BoxProps {
     box: IAddressBox;
     selected: boolean;
-    handleClickOnBox(box: IAddressBox): void
+    handleClickOnBox(box: IAddressBox): void;
 }
 
 
 
 function Box(props: BoxProps) {
     // deconstruct the props
-    const { box, selected, handleClickOnBox } = props
+    const { box, selected, handleClickOnBox } = props;
 
-    const [clicked, setClicked] = useState(false)
+    const [clicked, setClicked] = useState(false);
 
     function handleHighlight() {
-        setClicked(!clicked)
+        setClicked(!clicked);
+        handleClickOnBox(box);
     }
+
+    // Reset the clicked state when the selected state changes
+    useEffect(() => {
+        if (selected) {
+            setClicked(false);
+        }
+    }, [selected])
 
     let classNameBox = 'box'
     selected ? classNameBox = 'box selected-box' : null
@@ -28,10 +36,7 @@ function Box(props: BoxProps) {
         <>
             <div
                 className={classNameBox}
-                onClick={() => {
-                    handleClickOnBox(box)
-                    handleHighlight()
-                }}
+                onClick={handleHighlight}
             >
                 <div
                     className='box-content'
