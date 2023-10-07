@@ -40,14 +40,14 @@ function App() {
 
   }
 
-  
-   const handleMallocClick = (sizeOfBytes: number) => {
+
+  function handleMallocClick(sizeOfBytes: number) {
     // loop through all the possible startingpoints for a possible allocation
-    let unselectedBoxes = boxes.filter(box => !selectedBoxes.includes(box))
-    let StartingPoint = boxes.indexOf(unselectedBoxes[0])
-    
+    const unselectedBoxes = boxes.filter(box => !selectedBoxes.includes(box))
+    const StartingPoint = boxes.indexOf(unselectedBoxes[0])
+
     //let possible Check if the starting point is possible
-    let possible : IAddressBox[]
+    let possible: IAddressBox[]
     if ((StartingPoint + sizeOfBytes) == boxes.length) {
       possible = boxes.slice(StartingPoint)
     } else {
@@ -55,15 +55,19 @@ function App() {
       possible = boxes.slice(StartingPoint, boxes.indexOf(boxes[StartingPoint + sizeOfBytes]))
     }
 
-    let AllocationIsPossible = sizeOfBytes <= possible.length && possible.every(box => !selectedBoxes.includes(box))
+    const AllocationIsPossible = sizeOfBytes <= possible.length && possible.every(box => !selectedBoxes.includes(box))
     if (sizeOfBytes > 0 && AllocationIsPossible) {
       // set the color
-      console.log('possible')
       setSelectedBoxes([...selectedBoxes, ...possible])
-    } else {
-      console.log('not possible')
     }
-  } 
+  }
+
+// handle the free click
+  function handleFreeClick(sizeOfBytes: number) {
+    const remaining = selectedBoxes.slice(0, -sizeOfBytes)
+    setSelectedBoxes(remaining)
+  }
+
 
 
 
@@ -87,6 +91,12 @@ function App() {
 
       <div className='alloc-buttons'>
         <div>
+          <button
+            className='alloc-button'
+            onClick={() => handleFreeClick(sizeOfBytes)}
+          >
+            Free
+          </button>
           <button
             className='alloc-button'
             onClick={() => handleMallocClick(sizeOfBytes)}
