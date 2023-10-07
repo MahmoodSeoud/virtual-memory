@@ -11,9 +11,11 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -22,6 +24,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -43,10 +46,35 @@
 
 
 .alloc-buttons {
-  display: inline-flex;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
   margin: 1em;
 }
 
-.alloc-button  {
-  margin: 0 1em;
+.alloc-button {
+  background-color: teal;
+  margin: 0 .2em;
+  height: 3em;
+  width: 9em;
+}
+
+.input-bits {
+  height: 1em;
+  width: 2em;
+  margin: 1em 0;
+  padding: .5em;
+  font-size: 1.5em;
+  text-align: center;
+  margin-left: .1em;
+  margin-right: .2em;
+}
+
+
+.authors {
+  position: absolute;
+  bottom: 0;
+  right: 1;
+  font-family: 'Lobster', cursive;
 }

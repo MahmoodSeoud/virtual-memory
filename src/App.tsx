@@ -25,7 +25,6 @@ function App() {
     }
   ]
 
-  const [clicked, setClicked] = useState(false)
   const [selectedBoxes, setSelectedBoxes] = useState<IAddressBox[]>([])
   const [sizeOfBytes, setSizeOfBytes] = useState<number>(0)
   const [boxes, setBoxes] = useState<IAddressBox[]>(initial_boxes)
@@ -34,11 +33,6 @@ function App() {
     console.log(selectedBoxes)
   }, [0])
 
-
-  const handleBoxClick = (address: string) => {
-    //setSelectedBoxes([...selectedBoxes, address])
-
-  }
 
 
   function handleMallocClick(sizeOfBytes: number) {
@@ -62,7 +56,7 @@ function App() {
     }
   }
 
-// handle the free click
+  // handle the free click
   function handleFreeClick(sizeOfBytes: number) {
     const remaining = selectedBoxes.slice(0, -sizeOfBytes)
     setSelectedBoxes(remaining)
@@ -75,17 +69,14 @@ function App() {
     <>
       <div className='main-frame'>
         <div className='virtual-memory-container'>
-          {
-            boxes && boxes.length > 0 && boxes.map((address, i) => (
-              <Box
-                key={i}
-                box={address}
-                onClick={handleBoxClick}
-                selected={selectedBoxes.includes(address)}
-                clicked={clicked}
-              />
-            ))
-          }
+          {boxes && boxes.length > 0 && boxes.map((box) =>
+            <Box
+              key={box.address}
+              box={box}
+              selected={selectedBoxes.includes(box)}
+            />
+          )}
+
         </div>
       </div>
 
@@ -103,8 +94,16 @@ function App() {
           >
             Malloc
           </button>
-          <input onChange={(ev) => setSizeOfBytes(Number(ev.target.value))} />
+          <input
+            onChange={(ev) => setSizeOfBytes(Number(ev.target.value))}
+            className='input-bits'
+
+          />
         </div>
+        <p style={{ fontSize: 22 }}>Bits</p>
+      </div>
+      <div className='authors'>
+        Mahmood & Phil - SysMentor
       </div>
     </>
   )
