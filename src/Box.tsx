@@ -5,17 +5,18 @@ import './Box.css'
 interface BoxProps {
     box: IAddressBox;
     selected: boolean;
+    handleClickOnBox(box: IAddressBox): void
 }
 
 
 
 function Box(props: BoxProps) {
     // deconstruct the props
-    const { box, selected } = props
+    const { box, selected, handleClickOnBox } = props
 
     const [clicked, setClicked] = useState(false)
 
-    function handleBoxClick() {
+    function handleHighlight() {
         setClicked(!clicked)
     }
 
@@ -27,7 +28,10 @@ function Box(props: BoxProps) {
         <>
             <div
                 className={classNameBox}
-                onClick={handleBoxClick}
+                onClick={() => {
+                    handleClickOnBox(box)
+                    handleHighlight()
+                }}
             >
                 <div
                     className='box-content'

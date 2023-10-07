@@ -7,34 +7,49 @@ export interface IAddressBox {
   address: string;
 }
 
+const initial_boxes: IAddressBox[] = [
+  {
+    address: '0x1200a'
+  },
+  {
+    address: '0x1200b'
+  },
+  {
+    address: '0x1200c'
+  },
+  {
+    address: '0x1200d'
+  }
+];
+
+
 function App() {
 
 
-  const initial_boxes: IAddressBox[] = [
-    {
-      address: '0x1200a'
-    },
-    {
-      address: '0x1200b'
-    },
-    {
-      address: '0x1200c'
-    },
-    {
-      address: '0x1200d'
-    }
-  ]
 
   const [selectedBoxes, setSelectedBoxes] = useState<IAddressBox[]>([])
   const [sizeOfBytes, setSizeOfBytes] = useState<number>(0)
   const [boxes, setBoxes] = useState<IAddressBox[]>(initial_boxes)
+  const [highlightedBoxes, setHighlightedBoxes] = useState<IAddressBox[]>([])
 
   useEffect(() => {
     console.log(selectedBoxes)
   }, [0])
 
 
+  function handleClickOnBox(box: IAddressBox) {
 
+    if (highlightedBoxes && highlightedBoxes.length > 0 && highlightedBoxes.includes(box)) {
+      // if the box is already selected, deselect it
+      setHighlightedBoxes(highlightedBoxes.filter(selectedBox => selectedBox !== box))
+    } else {
+      // if the box is not selected, select it
+      setHighlightedBoxes([...highlightedBoxes, box])
+    }
+
+  }
+
+  // handle the malloc click
   function handleMallocClick(sizeOfBytes: number) {
     // loop through all the possible startingpoints for a possible allocation
     const unselectedBoxes = boxes.filter(box => !selectedBoxes.includes(box))
@@ -58,8 +73,24 @@ function App() {
 
   // handle the free click
   function handleFreeClick(sizeOfBytes: number) {
-    const remaining = selectedBoxes.slice(0, -sizeOfBytes)
-    setSelectedBoxes(remaining)
+    // loop through all the possible startingpoints for a possible allocation
+    const unselectedBoxes = boxes.filter(box => !selectedBoxes.includes(box))
+    const StartingPoint = boxes.indexOf(unselectedBoxes[0])
+
+    //let possible Check if the starting point is possible
+    let possible: IAddressBox[]
+    if ((StartingPoint + sizeOfBytes) == boxes.length) {
+      possible = boxes.slice(StartingPoint)
+    } else {
+      // startingpoint -> indexOf(startingpoint + sizeOfBytes)
+      possible = boxes.slice(StartingPoint, boxes.indexOf(boxes[StartingPoint + sizeOfBytes]))
+    }
+
+    const AllocationIsPossible = sizeOfBytes <= possible.length && possible.every(box => !selectedBoxes.includes(box))
+    if (sizeOfBytes > 0 && AllocationIsPossible) {
+      // set the color
+      setSelectedBoxes([...selectedBoxes, ...possible])
+    }
   }
 
 
@@ -73,6 +104,7 @@ function App() {
             <Box
               key={box.address}
               box={box}
+              handleClickOnBox={handleClickOnBox}
               selected={selectedBoxes.includes(box)}
             />
           )}
