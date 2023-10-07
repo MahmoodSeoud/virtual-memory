@@ -1,0 +1,31 @@
+.box {
+    border: 1px solid;
+    height: 8em;
+    width: 12em;
+    border-radius: .25em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    margin: .1em;
+}
+
+
+.box:hover {
+    color: red;
+    border-color: blue;
+}
+
+.box-content {
+    color: blue;
+    font-size: 1.5em;
+    user-select: none;
+}
+
+.selected-box {
+  background-color: yellow;
+}
+
+.selected-box.red {
+  background-color: red;
+}
