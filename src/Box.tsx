@@ -13,7 +13,6 @@ interface BoxProps {
 function Box(props: BoxProps) {
     // deconstruct the props
     const { box, selected, handleClickOnBox } = props;
-
     const [clicked, setClicked] = useState(false);
 
     function handleHighlight() {

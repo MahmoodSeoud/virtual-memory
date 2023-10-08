@@ -3,7 +3,7 @@ import Box from './Box'
 import './App.css'
 import './vm.css'
 
-export interface IAddressBox {
+export type IAddressBox = {
   address: string;
 }
 
