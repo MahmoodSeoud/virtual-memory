@@ -40,16 +40,24 @@ function App() {
   }, [sizeOfBytes])
 
 
-  function handleClickOnBox(box: IAddressBox) {
+  function handleClickOnBox(box: IAddressBox): boolean {
+    debugger
 
-    if (highlightedBoxes && highlightedBoxes.length > 0 && highlightedBoxes.includes(box)) {
+    if (!selectedBoxes.includes(box)) {
+      // if the box is not selected we cannot highlight it
+      return false;
+    }
+
+    if (highlightedBoxes &&
+      highlightedBoxes.length > 0 &&
+      highlightedBoxes.includes(box)) {
       // if the box is already selected, deselect it
       setHighlightedBoxes(highlightedBoxes.filter(selectedBox => selectedBox !== box))
     } else {
       // if the box is not selected, select it
       setHighlightedBoxes([...highlightedBoxes, box])
     }
-
+      return true;
   }
 
   // handle the malloc click
@@ -78,6 +86,7 @@ function App() {
 
   // handle the free click
   function handleFreeClick() {
+    debugger
     const remaining = selectedBoxes.filter(box => !highlightedBoxes.includes(box));
     setSelectedBoxes(remaining);
     setHighlightedBoxes([]);
@@ -88,13 +97,13 @@ function App() {
 
   return (
     <>
-        {/* Error msg incase of too many bytes */}
-        {showError &&
-          <div className='error-container'>
-            <p className='error-msg'>
-              Not enough space for {sizeOfBytes} bytes
-            </p>
-          </div>}
+      {/* Error msg incase of too many bytes */}
+      {showError &&
+        <div className='error-container'>
+          <p className='error-msg'>
+            Not enough space for {sizeOfBytes} bytes
+          </p>
+        </div>}
       <div className='main-frame'>
 
         <div className='virtual-memory-container'>

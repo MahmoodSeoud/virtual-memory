@@ -5,7 +5,7 @@ import './Box.css'
 interface BoxProps {
     box: IAddressBox;
     selected: boolean;
-    handleClickOnBox(box: IAddressBox): void;
+    handleClickOnBox(box: IAddressBox): boolean;
 }
 
 
@@ -16,8 +16,8 @@ function Box(props: BoxProps) {
     const [clicked, setClicked] = useState(false);
 
     function handleHighlight() {
-        setClicked(!clicked);
-        handleClickOnBox(box);
+        const isHighlighted = handleClickOnBox(box);
+        setClicked(isHighlighted);
     }
 
     // Reset the clicked state when the selected state changes
