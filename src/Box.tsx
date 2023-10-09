@@ -5,6 +5,7 @@ import './Box.css'
 interface BoxProps {
     box: IAddressBox;
     selected: boolean;
+    color: string;
     handleClickOnBox(box: IAddressBox): boolean;
 }
 
@@ -27,10 +28,11 @@ function Box(props: BoxProps) {
         }
     }, [selected])
 
-    let classNameBox = 'box'
-    selected ? classNameBox = 'box selected-box' : null
-    selected && clicked ? classNameBox = 'box highlighted-box' : null
 
+
+    let classNameBox = 'box';
+    selected ? classNameBox = 'box selected-box' : null;
+    selected && clicked ? classNameBox = 'box highlighted-box' : null;
     return (
         <>
             <div

@@ -1,7 +1,8 @@
 .box {
     border: 1px solid;
-    height: 8em;
-    width: 12em;
+    height: 4em;
+    width: 6em;
+    min-width: 6em;
     border-radius: .25em;
     display: flex;
     justify-content: center;
@@ -23,7 +24,7 @@
 
 
 .selected-box{
-  background-color: darkolivegreen;
+  background-color: olivedrab;
 }
 
 .highlighted-box {
