@@ -4,6 +4,12 @@ import './vm.css'
 import AllocationInformation from './AllocationInformation'
 import Word from './Word'
 
+export type IWordGroup = {
+  words: IWord[]
+  color: string;
+}
+
+
 export type IWord = {
   address: string;
 }
@@ -15,10 +21,10 @@ const ALLOCATION_CONSTANTS = {
 } as const;
 
 
-export function AddressCreation(address: number, numAddresses: number, slide: number, baseNumber: number = 16): IWord[] {
+export function createAdddress(address: number, addressCount: number, slide: number, baseNumber: number = 16): IWord[] {
   /* 
   address : The address in which the virtual memory should start from
-  numaddresses : number of address words that should be present
+  addressCount : number of address words that should be present
   baseNumber : The base number (default is 16 for hexadecimal)
   */
   const addressArr: IWord[] = []
@@ -34,7 +40,7 @@ export function AddressCreation(address: number, numAddresses: number, slide: nu
       break
   }
 
-  for (let i = 0; i <= numAddresses - 1; i++) {
+  for (let i = 0; i <= addressCount - 1; i++) {
     addressArr.push({ address: basePrefix + (address + i * slide).toString(baseNumber) });
   }
 
@@ -48,15 +54,19 @@ export function AddressCreation(address: number, numAddresses: number, slide: nu
 function App() {
   const [allocatedWords, setAllocatedWords] = useState<IWord[]>([])
   const [amountToAllocate, setAmountToAllocate] = useState<number>(0)
-  const [words, setWords] = useState<IWord[]>(AddressCreation(12222, 4, 32))
+  const [words, setWords] = useState<IWord[]>(createAdddress(12222, 4, 32))
   const [highlightedWords, setHighlightedWords] = useState<IWord[]>([])
   const [showError, setShowError] = useState<boolean>(false)
-  const [groupedWords, setGroupedWords] = useState<IWord[][]>([])
+  const [groupedWords, setGroupedWords] = useState<IWordGroup[]>([{ words: [], color: 'red' }])
 
   useEffect(() => {
     setShowError(false);
   }, [amountToAllocate])
 
+
+  useEffect(() => {
+    console.log(groupedWords)
+  }, [groupedWords])
 
   function handleClickOnBox(word: IWord): boolean {
 
@@ -84,7 +94,6 @@ function App() {
 
     //let wordsToAllocate Check if the starting point is wordsToAllocate
     let wordsToAllocate: IWord[] = words.slice(startIndex, startIndex + amountToAllocate);
-    debugger
     const AllocationIsPossible = amountToAllocate > 0 &&
       wordsToAllocate.length >= amountToAllocate &&
       wordsToAllocate.every(word => !allocatedWords.includes(word))
@@ -93,7 +102,8 @@ function App() {
       // set the color
       // Allocation is possible
       setAllocatedWords([...allocatedWords, ...wordsToAllocate]);
-      setGroupedWords([...groupedWords, wordsToAllocate])
+      setGroupedWords([...groupedWords, { words: wordsToAllocate, color: `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})` }])
+
     } else {
       // show error
       // Allocation is NOT possible
@@ -127,15 +137,21 @@ function App() {
         <div className='virtual-memory-container'>
           <div className='block-container'>
             <AllocationInformation allocationNumber={1} />
-            {words && words.length > 0 && words.map((word, index) =>
-              <Word
-                box={word}
-                key={index}
-                color={`rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`}
-                handleClickOnBox={handleClickOnBox}
-                selected={allocatedWords.includes(word)}
-              />
-            )}
+            {words && words.length > 0 && words.map((word, index) => {
+              const allocated = allocatedWords.includes(word);
+              const group = groupedWords.find(group => group.words.includes(word));
+              const color = allocated && group ? group.color : 'transparent';
+              return (
+                <Word
+                  key={index}
+                  box={word}
+                  color={color}
+                  handleClickOnBox={handleClickOnBox}
+                  selected={allocated}
+                />
+              );
+            })}
+
           </div>
         </div>
       </div>

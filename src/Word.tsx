@@ -1,4 +1,4 @@
-import { AddressCreation, IWord } from "./App";
+import { IWord } from "./App";
 import Box from "./Box";
 import './Box.css'
 import './App.css'
