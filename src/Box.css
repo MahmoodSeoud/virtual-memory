@@ -45,8 +45,8 @@
 
 .bit{
   border: 1px solid white;
-  height: 2em;
-  width: 2em;
+  height: 1em;
+  width: 1em;
   font-size: 12px;
   min-width: 4em;
   border-radius: .25em;
@@ -54,7 +54,7 @@
   justify-content: center;
   align-items: center;
   background: transparent;
-  margin: .1em;
+  margin: 0;
 }
 
 .bit:hover {
@@ -65,12 +65,11 @@
 .bit-box{
   position: absolute;
   top: -40px;
-  left: 0;
+  left: -5;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 30px;
   z-index: 1;
+  border: 1px solid white;
 }
