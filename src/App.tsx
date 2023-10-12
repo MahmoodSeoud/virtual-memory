@@ -15,6 +15,7 @@ export type Word = {
 
 export type Bit = {
   address: string;
+  value: number;
 }
 
 const ALLOCATION_CONSTANTS = {
@@ -50,14 +51,13 @@ export function createAdddress(address: number, wordSize: number, byteSize: numb
 
     for (let j = 0; j < bitsInWord; j++) {
       const bitAddress = basePrefix + (wordAddress + j).toString(baseNumber);
-      bits.push({ address: bitAddress });
+      bits.push({ address: bitAddress, value: 0});
     }
     addressArr.push({
       bits,
       address: wordAddressStr
     });
   }
-  debugger
   return addressArr;
 }
 

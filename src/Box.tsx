@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Word } from './App';
+import { Bit, Word } from './App';
 import './Box.css'
 
 interface BoxProps {
@@ -7,6 +7,20 @@ interface BoxProps {
     color: string;
     selected: boolean;
     handleClickOnBox(box: Word): boolean;
+}
+interface BitBoxProps {
+    bits: Bit[];
+}
+
+
+function BitBox({ bits }: BitBoxProps) {
+    return (
+        <div className='bit-box'>
+            {bits.map((bit, index) => (
+                <div key={index} className={`bit ${bit.value === 1 ? 'bit-set' : 'bit-unset'}`}>{bit.address}</div>
+            ))}
+        </div>
+    );
 }
 
 
@@ -20,6 +34,7 @@ function Box({ box, color, selected, handleClickOnBox }: BoxProps) {
     }
 
     function handleMouseLeave() {
+        debugger
         setShowBits(false);
     }
 
@@ -45,27 +60,22 @@ function Box({ box, color, selected, handleClickOnBox }: BoxProps) {
     selected ? style = { backgroundColor: color } : null
 
     return (
-        <>
-            <div className='box-container'>
-
-                {showBits && <div style={{ backgroundColor: 'red' }}>Hello World</div>}
-                <div
-                    className={classNameBox}
-                    onClick={handleHighlight}
-                    style={style}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                >
-                    <div
-                        className='box-content'
-                    >
-                        {/* Display only the first address of the bit on the word */}
-                        {box.bits[0].address}
-                    </div>
-                </div>
-            </div>
-        </>
-    )
+       <div className='box-container'>
+      {showBits && <BitBox bits={box.bits} key={1} />}
+      <div
+        className={classNameBox}
+        style={style}
+        onClick={handleHighlight}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div className='box-content'>
+          {/* Display only the first address of the bit on the word */}
+          {box.bits[0].address}
+        </div>
+      </div>
+    </div>
+    );
 }
 
 

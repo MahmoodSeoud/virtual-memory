@@ -15,14 +15,16 @@ interface IWordProps {
 
 function Words({ selected, handleClickOnBox, color, box }: IWordProps) {
 
-    return (
 
-        <Box
-            box={box}
-            color={color}
-            handleClickOnBox={handleClickOnBox}
-            selected={selected}
-        />
+    return (
+        <>
+            <Box
+                box={box}
+                color={color}
+                handleClickOnBox={handleClickOnBox}
+                selected={selected}
+            />
+        </>
 
     );
 }
