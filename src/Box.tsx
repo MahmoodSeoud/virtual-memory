@@ -1,19 +1,27 @@
 import { useEffect, useState } from 'react';
-import { IWord } from './App';
+import { Word } from './App';
 import './Box.css'
 
 interface BoxProps {
-    box: IWord;
+    box: Word;
     color: string;
     selected: boolean;
-    handleClickOnBox(box: IWord): boolean;
+    handleClickOnBox(box: Word): boolean;
 }
 
 
 
-function Box({box, color, selected, handleClickOnBox}: BoxProps) {
+function Box({ box, color, selected, handleClickOnBox }: BoxProps) {
     // deconstruct the props
     const [clicked, setClicked] = useState(false);
+    const [showBits, setShowBits] = useState<boolean>(false);
+    function handleMouseEnter() {
+        setShowBits(true)
+    }
+
+    function handleMouseLeave() {
+        setShowBits(false);
+    }
 
     function handleHighlight() {
         const isHighlighted = handleClickOnBox(box);
@@ -38,15 +46,22 @@ function Box({box, color, selected, handleClickOnBox}: BoxProps) {
 
     return (
         <>
-            <div
-                className={classNameBox}
-                onClick={handleHighlight}
-                style={style}
-            >
+            <div className='box-container'>
+
+                {showBits && <div style={{ backgroundColor: 'red' }}>Hello World</div>}
                 <div
-                    className='box-content'
+                    className={classNameBox}
+                    onClick={handleHighlight}
+                    style={style}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                 >
-                    {box.address}
+                    <div
+                        className='box-content'
+                    >
+                        {/* Display only the first address of the bit on the word */}
+                        {box.bits[0].address}
+                    </div>
                 </div>
             </div>
         </>

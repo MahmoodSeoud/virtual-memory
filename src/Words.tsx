@@ -1,18 +1,20 @@
-import { IWord } from "./App";
+import { Word } from "./App";
 import Box from "./Box";
 import './Box.css'
 import './App.css'
+import { useState } from "react";
 
 interface IWordProps {
-    box: IWord;
+    box: Word;
     color: string;
     selected: boolean;
-    handleClickOnBox(box: IWord): boolean;
+    handleClickOnBox(box: Word): boolean;
 }
 
 
 
-function Word({ selected, handleClickOnBox, color, box }: IWordProps) {
+function Words({ selected, handleClickOnBox, color, box }: IWordProps) {
+
     return (
 
         <Box
@@ -24,4 +26,4 @@ function Word({ selected, handleClickOnBox, color, box }: IWordProps) {
 
     );
 }
-export default Word;
+export default Words;

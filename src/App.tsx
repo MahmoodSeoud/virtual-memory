@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import './vm.css'
-import Word from './Word'
+import Words from './Words'
 
-export type IWordGroup = {
-  words: IWord[]
+export type WordGroup = {
+  words: Word[]
   color: string;
 }
 
-export type IWord = {
+export type Word = {
+  bits: Bit[];
+  address: string;
+}
+
+export type Bit = {
   address: string;
 }
 
@@ -18,16 +23,15 @@ const ALLOCATION_CONSTANTS = {
 } as const;
 
 
-export function createAdddress(address: number, wordSize: number, baseNumber: number = 16): IWord[] {
+export function createAdddress(address: number, wordSize: number, byteSize: number, baseNumber: number = 16): Word[] {
   /* 
   address : The address in which the virtual memory should start from
   wordSize : number of address words that should be present
   baseNumber : The base number (default is 16 for hexadecimal)
   */
-  const aByte = 8;
-  const slide = wordSize * aByte;
-  const addressArr: IWord[] = [];
-  let basePrefix = ""
+  const bitsInWord = wordSize * byteSize;
+  const addressArr: Word[] = [];
+  let basePrefix = "";
   switch (baseNumber) {
     case 2:
       basePrefix = "0b";
@@ -39,24 +43,34 @@ export function createAdddress(address: number, wordSize: number, baseNumber: nu
       break;
   }
 
-  for (let i = 0; i <= wordSize - 1; i++) {
-    addressArr.push({ address: basePrefix + (address + i * slide).toString(baseNumber) });
+  for (let i = 0; i < bitsInWord; i += byteSize) {
+    const wordAddress: number = address + i
+    const wordAddressStr: string = basePrefix + (address + i).toString(baseNumber);
+    const bits: Bit[] = [];
+
+    for (let j = 0; j < bitsInWord; j++) {
+      const bitAddress = basePrefix + (wordAddress + j).toString(baseNumber);
+      bits.push({ address: bitAddress });
+    }
+    addressArr.push({
+      bits,
+      address: wordAddressStr
+    });
   }
-
+  debugger
   return addressArr;
-
-
 }
 
 
 
 function App() {
-  const [allocatedWords, setAllocatedWords] = useState<IWord[]>([])
-  const [amountToAllocate, setAmountToAllocate] = useState<number>(0)
-  const [words, setWords] = useState<IWord[]>(createAdddress(12222, ALLOCATION_CONSTANTS.WORD_SIZE_32BIT))
-  const [highlightedWords, setHighlightedWords] = useState<IWord[]>([])
-  const [showError, setShowError] = useState<boolean>(false)
-  const [groupedWords, setGroupedWords] = useState<IWordGroup[]>([])
+  const [allocatedWords, setAllocatedWords] = useState<Word[]>([]);
+  const [amountToAllocate, setAmountToAllocate] = useState<number>(0);
+  const [words, setWords] = useState<Word[]>(createAdddress(12222, ALLOCATION_CONSTANTS.WORD_SIZE_32BIT, 8));
+  //const [bits, setBits] = useState<Bit[]>(createAdddress(12222, 32))
+  const [highlightedWords, setHighlightedWords] = useState<Word[]>([]);
+  const [showError, setShowError] = useState<boolean>(false);
+  const [groupedWords, setGroupedWords] = useState<WordGroup[]>([]);
 
   useEffect(() => {
     setShowError(false);
@@ -67,7 +81,8 @@ function App() {
     console.log(groupedWords)
   }, [groupedWords])
 
-  function handleClickOnBox(word: IWord): boolean {
+
+  function handleClickOnBox(word: Word): boolean {
 
     if (!allocatedWords.includes(word)) {
       // if the box is not selected we cannot highlight it
@@ -85,14 +100,17 @@ function App() {
   }
 
   // handle the malloc click
+  // handle the malloc click
   function handleAllocateClick() {
+
+
 
     // loop through all the wordsToAllocate startingpoints for a wordsToAllocate allocation
     const availableWords = words.filter(word => !allocatedWords.includes(word))
     const startIndex = words.indexOf(availableWords[0])
 
     //let wordsToAllocate Check if the starting point is wordsToAllocate
-    let wordsToAllocate: IWord[] = words.slice(startIndex, startIndex + amountToAllocate);
+    let wordsToAllocate: Word[] = words.slice(startIndex, startIndex + amountToAllocate);
     const AllocationIsPossible = amountToAllocate > 0 &&
       wordsToAllocate.length >= amountToAllocate &&
       wordsToAllocate.every(word => !allocatedWords.includes(word))
@@ -108,6 +126,7 @@ function App() {
       // Allocation is NOT possible
       setShowError(true);
     }
+    debugger
   }
 
   // handle the free click
@@ -141,17 +160,13 @@ function App() {
         <div className='virtual-memory-container'>
           <div className="allocation-container">
             {groupedWords && groupedWords.length > 0 && groupedWords.map((group, index) => {
-              const byteCount = group.words.length * ALLOCATION_CONSTANTS.WORD_SIZE_32BIT;
-              const bitCount = byteCount * ALLOCATION_CONSTANTS.WORD_SIZE_32BIT;
+              const abyte = 8;
+              const bitCount = amountToAllocate * abyte;
               return (
-
-                <>
-                  <div>
-                    <p className="allocation-text" style={{ color: group.color }}>P{index} = {byteCount} bytes ({bitCount} bits)</p>
-                  </div>
-                </>
+                <div>
+                  <p className="allocation-text" style={{ color: group.color }}>P{index} = {amountToAllocate} bytes ({bitCount} bits)</p>
+                </div>
               );
-
             })}
 
           </div>
@@ -162,8 +177,8 @@ function App() {
               const color = allocated && group ? group.color : 'transparent';
               return (
                 <>
-                  <Word
-                    key={index +1}
+                  <Words
+                    key={index + 1}
                     box={word}
                     color={color}
                     handleClickOnBox={handleClickOnBox}
@@ -186,7 +201,7 @@ function App() {
           </button>
           <button
             className='alloc-button'
-            onClick={handleAllocateClick}
+            onClick={() => handleAllocateClick()}
           >
             Malloc
           </button>
@@ -198,7 +213,7 @@ function App() {
 
           />
         </div>
-        <p style={{ fontSize: 22 }}>Words</p>
+        <p style={{ fontSize: 22 }}>Bytes</p>
       </div>
 
 
