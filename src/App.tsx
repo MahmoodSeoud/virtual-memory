@@ -9,11 +9,9 @@ export type IWordGroup = {
   color: string;
 }
 
-
 export type IWord = {
   address: string;
 }
-
 
 const ALLOCATION_CONSTANTS = {
   WORD_SIZE_32BIT: 4,
@@ -27,8 +25,8 @@ export function createAdddress(address: number, wordSize: number, baseNumber: nu
   wordSize : number of address words that should be present
   baseNumber : The base number (default is 16 for hexadecimal)
   */
-  const byteCount = 8;
-  const slide = wordSize * byteCount;
+  const aByte = 8;
+  const slide = wordSize * aByte;
   const addressArr: IWord[] = [];
   let basePrefix = ""
   switch (baseNumber) {
@@ -59,7 +57,7 @@ function App() {
   const [words, setWords] = useState<IWord[]>(createAdddress(12222, ALLOCATION_CONSTANTS.WORD_SIZE_32BIT))
   const [highlightedWords, setHighlightedWords] = useState<IWord[]>([])
   const [showError, setShowError] = useState<boolean>(false)
-  const [groupedWords, setGroupedWords] = useState<IWordGroup[]>([{ words: [], color: 'red' }])
+  const [groupedWords, setGroupedWords] = useState<IWordGroup[]>([])
 
   useEffect(() => {
     setShowError(false);
@@ -134,26 +132,47 @@ function App() {
           </p>
         </div>}
       <div className='main-frame'>
-        <h1 className='title'>Virtual Memory</h1>
-        <h2>32 bit words</h2>
+
+        <div>
+          <h1 className='title'>Virtual Memory</h1>
+          <h2>32 bit words</h2>
+        </div>
+
+
         <div className='virtual-memory-container'>
+          <div className="allocation-container">
+            {groupedWords && groupedWords.length > 0 && groupedWords.map((group, index) => {
+              const byteCount = group.words.length * ALLOCATION_CONSTANTS.WORD_SIZE_32BIT;
+              const bitCount = byteCount * ALLOCATION_CONSTANTS.WORD_SIZE_32BIT;
+              return (
+
+                <>
+                  <div>
+                    <p className="allocation-text" style={{ color: group.color }}>P{index} = {byteCount} bytes ({bitCount} bits)</p>
+                  </div>
+                </>
+              );
+
+            })}
+
+          </div>
           <div className='block-container'>
-            <AllocationInformation allocationNumber={1} />
             {words && words.length > 0 && words.map((word, index) => {
               const allocated = allocatedWords.includes(word);
               const group = groupedWords.find(group => group.words.includes(word));
               const color = allocated && group ? group.color : 'transparent';
               return (
-                <Word
-                  key={index}
-                  box={word}
-                  color={color}
-                  handleClickOnBox={handleClickOnBox}
-                  selected={allocated}
-                />
+                <>
+                  <Word
+                    key={index +1}
+                    box={word}
+                    color={color}
+                    handleClickOnBox={handleClickOnBox}
+                    selected={allocated}
+                  />
+                </>
               );
             })}
-
           </div>
         </div>
       </div>
@@ -182,6 +201,9 @@ function App() {
         </div>
         <p style={{ fontSize: 22 }}>Words</p>
       </div>
+
+
+
       <div className='authors'>
         Mahmood & Phil - SysMentor
       </div>
