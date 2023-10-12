@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
-import Box from './Box'
 import './App.css'
 import './vm.css'
 import AllocationInformation from './AllocationInformation'
 import Word from './Word'
 
-export type IAddressBox = {
+export type IWord = {
   address: string;
 }
 
@@ -15,12 +14,15 @@ const ALLOCATION_CONSTANTS = {
   WORD_SIZE_64BIT: 8,
 } as const;
 
-/// address : The address in which the virtual memory should start from
-/// numaddresses : number of address bytes that should be present
-/// baseNumber : The base number (default is 16 for hexadecimal)
-export function AddressCreation(address: number, numAddresses: number, slide : number, baseNumber: number = 16): IAddressBox[] {
-  const addressArr: IAddressBox[] = []
-  let basePrefix = "" 
+
+export function AddressCreation(address: number, numAddresses: number, slide: number, baseNumber: number = 16): IWord[] {
+  /* 
+  address : The address in which the virtual memory should start from
+  numaddresses : number of address words that should be present
+  baseNumber : The base number (default is 16 for hexadecimal)
+  */
+  const addressArr: IWord[] = []
+  let basePrefix = ""
   switch (baseNumber) {
     case 2:
       basePrefix = "0b"
@@ -33,7 +35,7 @@ export function AddressCreation(address: number, numAddresses: number, slide : n
   }
 
   for (let i = 0; i <= numAddresses - 1; i++) {
-    addressArr.push({ address: basePrefix + (address + i*slide).toString(baseNumber) });
+    addressArr.push({ address: basePrefix + (address + i * slide).toString(baseNumber) });
   }
 
   return addressArr;
@@ -44,65 +46,57 @@ export function AddressCreation(address: number, numAddresses: number, slide : n
 
 
 function App() {
-  const [selectedbytes, setSelectedbytes] = useState<IAddressBox[]>([])
-  const [sizeOfBytes, setSizeOfBytes] = useState<number>(0)
-  const [bytes, setbytes] = useState<IAddressBox[]>(AddressCreation(12222, 4, 32))
-  const [highlightedbytes, setHighlightedbytes] = useState<IAddressBox[]>([])
+  const [allocatedWords, setAllocatedWords] = useState<IWord[]>([])
+  const [amountToAllocate, setAmountToAllocate] = useState<number>(0)
+  const [words, setWords] = useState<IWord[]>(AddressCreation(12222, 4, 32))
+  const [highlightedWords, setHighlightedWords] = useState<IWord[]>([])
   const [showError, setShowError] = useState<boolean>(false)
-  const [words, setWords] = useState<IAddressBox[][]>([])
+  const [groupedWords, setGroupedWords] = useState<IWord[][]>([])
 
   useEffect(() => {
-    console.log(selectedbytes);
     setShowError(false);
-    console.log(showError);
-  }, [sizeOfBytes])
+  }, [amountToAllocate])
 
 
-  function handleClickOnBox(box: IAddressBox): boolean {
-    debugger
+  function handleClickOnBox(word: IWord): boolean {
 
-    if (!selectedbytes.includes(box)) {
+    if (!allocatedWords.includes(word)) {
       // if the box is not selected we cannot highlight it
       return false;
     }
 
-    if (highlightedbytes &&
-      highlightedbytes.length > 0 &&
-      highlightedbytes.includes(box)) {
+    if (highlightedWords.includes(word)) {
       // if the box is already selected, deselect it
-      setHighlightedbytes(highlightedbytes.filter(selectedBox => selectedBox !== box))
+      setHighlightedWords(highlightedWords.filter(selectedBox => selectedBox !== word))
     } else {
       // if the box is not selected, select it
-      setHighlightedbytes([...highlightedbytes, box])
+      setHighlightedWords([...highlightedWords, word])
     }
     return true;
   }
 
   // handle the malloc click
-  function handleMallocClick(sizeOfBytes: number) {
+  function handleAllocateClick() {
 
-    // Word = 4 bytes for 32 bit system
-    // Word = 8 bytes for 64 bit system
-    const mallocedMem = sizeOfBytes;
+    // loop through all the wordsToAllocate startingpoints for a wordsToAllocate allocation
+    const availableWords = words.filter(word => !allocatedWords.includes(word))
+    const startIndex = words.indexOf(availableWords[0])
 
+    //let wordsToAllocate Check if the starting point is wordsToAllocate
+    let wordsToAllocate: IWord[] = words.slice(startIndex, startIndex + amountToAllocate);
+    debugger
+    const AllocationIsPossible = amountToAllocate > 0 &&
+      wordsToAllocate.length >= amountToAllocate &&
+      wordsToAllocate.every(word => !allocatedWords.includes(word))
 
-    // loop through all the possible startingpoints for a possible allocation
-    const unselectedbytes = bytes.filter(box => !selectedbytes.includes(box))
-    const StartingPoint = bytes.indexOf(unselectedbytes[0])
-    //let possible Check if the starting point is possible
-    let possible: IAddressBox[]
-    if ((StartingPoint + mallocedMem) == bytes.length) {
-      possible = bytes.slice(StartingPoint)
-    } else {
-      // startingpoint -> indexOf(startingpoint + mallocedMem)
-      possible = bytes.slice(StartingPoint, bytes.indexOf(bytes[StartingPoint + mallocedMem]));
-    }
-
-    const AllocationIsPossible = mallocedMem <= possible.length && possible.every(box => !selectedbytes.includes(box))
-    if (mallocedMem > 0 && AllocationIsPossible) {
+    if (AllocationIsPossible) {
       // set the color
-      setSelectedbytes([...selectedbytes, ...possible]);
+      // Allocation is possible
+      setAllocatedWords([...allocatedWords, ...wordsToAllocate]);
+      setGroupedWords([...groupedWords, wordsToAllocate])
     } else {
+      // show error
+      // Allocation is NOT possible
       setShowError(true);
     }
   }
@@ -110,9 +104,9 @@ function App() {
   // handle the free click
   function handleFreeClick() {
     debugger
-    const remaining = selectedbytes.filter(box => !highlightedbytes.includes(box));
-    setSelectedbytes(remaining);
-    setHighlightedbytes([]);
+    const remaining = allocatedWords.filter(word => !highlightedWords.includes(word));
+    setAllocatedWords(remaining);
+    setHighlightedWords([]);
   }
 
 
@@ -120,27 +114,29 @@ function App() {
 
   return (
     <>
-      {/* Error msg incase of too many bytes */}
+      {/* Error msg incase of too many words */}
       {showError &&
         <div className='error-container'>
           <p className='error-msg'>
-            Not enough space for {sizeOfBytes} bytes
+            Not enough space for {amountToAllocate} words
           </p>
         </div>}
       <div className='main-frame'>
         <h1 className='title'>Virtual Memory</h1>
-        <h2>Word Allocation</h2>
+        <h2>32 bit words</h2>
         <div className='virtual-memory-container'>
-            <div className='block-container'>
-              <AllocationInformation allocationNumber={1} />
+          <div className='block-container'>
+            <AllocationInformation allocationNumber={1} />
+            {words && words.length > 0 && words.map((word, index) =>
               <Word
+                box={word}
+                key={index}
                 color={`rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`}
-                bytes={bytes}
-                selectedbytes={selectedbytes}
                 handleClickOnBox={handleClickOnBox}
+                selected={allocatedWords.includes(word)}
               />
-            </div>
-
+            )}
+          </div>
         </div>
       </div>
 
@@ -154,12 +150,12 @@ function App() {
           </button>
           <button
             className='alloc-button'
-            onClick={() => handleMallocClick(sizeOfBytes)}
+            onClick={handleAllocateClick}
           >
             Malloc
           </button>
           <input
-            onChange={(ev) => setSizeOfBytes(Number(ev.target.value))}
+            onChange={(ev) => setAmountToAllocate(Number(ev.target.value))}
             className='input-bits'
             autoFocus
             placeholder='32'

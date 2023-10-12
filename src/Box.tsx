@@ -1,19 +1,18 @@
 import { useEffect, useState } from 'react';
-import { IAddressBox } from './App';
+import { IWord } from './App';
 import './Box.css'
 
 interface BoxProps {
-    box: IAddressBox;
-    selected: boolean;
+    box: IWord;
     color: string;
-    handleClickOnBox(box: IAddressBox): boolean;
+    selected: boolean;
+    handleClickOnBox(box: IWord): boolean;
 }
 
 
 
-function Box(props: BoxProps) {
+function Box({box, color, selected, handleClickOnBox}: BoxProps) {
     // deconstruct the props
-    const { box, selected, handleClickOnBox } = props;
     const [clicked, setClicked] = useState(false);
 
     function handleHighlight() {
@@ -33,17 +32,21 @@ function Box(props: BoxProps) {
     let classNameBox = 'box';
     selected ? classNameBox = 'box selected-box' : null;
     selected && clicked ? classNameBox = 'box highlighted-box' : null;
+
+    let style = {}
+    selected ? style = { backgroundColor: color } : null
+
     return (
         <>
             <div
                 className={classNameBox}
                 onClick={handleHighlight}
+                style={style}
             >
                 <div
                     className='box-content'
                 >
                     {box.address}
-
                 </div>
             </div>
         </>

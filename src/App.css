@@ -59,12 +59,3 @@
   font-weight: bold;
   margin: 1em;
 }
-
-.word-container {
-  display: grid;
-  grid-template-columns: repeat(2, 6em);
-  grid-template-rows: repeat(2, 4em);
-  grid-gap: 0.5em; /* reduced gap */
-  justify-content: center;
-  width: 100%;
-}

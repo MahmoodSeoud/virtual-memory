@@ -1,29 +1,27 @@
-import { AddressCreation, IAddressBox } from "./App";
+import { AddressCreation, IWord } from "./App";
 import Box from "./Box";
 import './Box.css'
+import './App.css'
 
 interface IWordProps {
-    bytes: IAddressBox[];
-    selectedbytes: IAddressBox[];
-    handleClickOnBox(box: IAddressBox): boolean;
+    box: IWord;
     color: string;
+    selected: boolean;
+    handleClickOnBox(box: IWord): boolean;
 }
 
 
 
-function Word({ bytes, selectedbytes, handleClickOnBox, color }: IWordProps) {
+function Word({ selected, handleClickOnBox, color, box }: IWordProps) {
     return (
-        <div className="word-container">
-            {bytes && bytes.length > 0 && bytes.map((byte, index) => (
-                <Box
-                    color={color}
-                    key={index}
-                    box={byte}
-                    handleClickOnBox={handleClickOnBox}
-                    selected={selectedbytes.includes(byte)}
-                />
-            ))}
-        </div>
-    ); 
+
+        <Box
+            box={box}
+            color={color}
+            handleClickOnBox={handleClickOnBox}
+            selected={selected}
+        />
+
+    );
 }
 export default Word;
