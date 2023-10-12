@@ -21,26 +21,28 @@ const ALLOCATION_CONSTANTS = {
 } as const;
 
 
-export function createAdddress(address: number, addressCount: number, slide: number, baseNumber: number = 16): IWord[] {
+export function createAdddress(address: number, wordSize: number, baseNumber: number = 16): IWord[] {
   /* 
   address : The address in which the virtual memory should start from
-  addressCount : number of address words that should be present
+  wordSize : number of address words that should be present
   baseNumber : The base number (default is 16 for hexadecimal)
   */
-  const addressArr: IWord[] = []
+  const byteCount = 8;
+  const slide = wordSize * byteCount;
+  const addressArr: IWord[] = [];
   let basePrefix = ""
   switch (baseNumber) {
     case 2:
-      basePrefix = "0b"
-      break
+      basePrefix = "0b";
+      break;
     case 16:
-      basePrefix = "0x"
-      break
+      basePrefix = "0x";
+      break;
     default:
-      break
+      break;
   }
 
-  for (let i = 0; i <= addressCount - 1; i++) {
+  for (let i = 0; i <= wordSize - 1; i++) {
     addressArr.push({ address: basePrefix + (address + i * slide).toString(baseNumber) });
   }
 
@@ -54,7 +56,7 @@ export function createAdddress(address: number, addressCount: number, slide: num
 function App() {
   const [allocatedWords, setAllocatedWords] = useState<IWord[]>([])
   const [amountToAllocate, setAmountToAllocate] = useState<number>(0)
-  const [words, setWords] = useState<IWord[]>(createAdddress(12222, 4, 32))
+  const [words, setWords] = useState<IWord[]>(createAdddress(12222, ALLOCATION_CONSTANTS.WORD_SIZE_32BIT))
   const [highlightedWords, setHighlightedWords] = useState<IWord[]>([])
   const [showError, setShowError] = useState<boolean>(false)
   const [groupedWords, setGroupedWords] = useState<IWordGroup[]>([{ words: [], color: 'red' }])
