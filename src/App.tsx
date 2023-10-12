@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import './vm.css'
-import AllocationInformation from './AllocationInformation'
 import Word from './Word'
 
 export type IWordGroup = {
