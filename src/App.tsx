@@ -51,7 +51,7 @@ export function createAdddress(address: number, wordSize: number, byteSize: numb
 
     for (let j = 0; j < bitsInWord; j++) {
       const bitAddress = basePrefix + (wordAddress + j).toString(baseNumber);
-      bits.push({ address: bitAddress, value: 0});
+      bits.push({ address: bitAddress, value: 0 });
     }
     addressArr.push({
       bits,
@@ -78,8 +78,9 @@ function App() {
 
 
   useEffect(() => {
-    console.log(groupedWords)
-  }, [groupedWords])
+    console.log("words", words)
+    console.log("Groupedwords", groupedWords)
+  }, [words, groupedWords])
 
 
   function handleClickOnBox(word: Word): boolean {
@@ -100,33 +101,63 @@ function App() {
   }
 
   // handle the malloc click
-  // handle the malloc click
   function handleAllocateClick() {
+    let index = 0;
+
+    if (amountToAllocate <= 4) {
+      const firstWordWithAvailbeSpace = words.find((word) => {
+
+        // Find the first index of the first available bit
+        index = word.bits.findIndex((bit) => bit.value === 0)
+        // Check if there is enough space for the amount of bytes
+        const hasEnoughSpace = word.bits.length - index >= amountToAllocate * 8
+
+        return index !== -1 && hasEnoughSpace;
+      })
+
+      if (!firstWordWithAvailbeSpace) {
+        setShowError(true);
+        return;
+      }
 
 
+      // Set the bits to 1 if there is enough space
+      if (firstWordWithAvailbeSpace.bits.length - index >= amountToAllocate * 8) {
 
-    // loop through all the wordsToAllocate startingpoints for a wordsToAllocate allocation
-    const availableWords = words.filter(word => !allocatedWords.includes(word))
-    const startIndex = words.indexOf(availableWords[0])
+        firstWordWithAvailbeSpace!
+          .bits
+          .slice(index, index + amountToAllocate * 8)
+          .map((bit) => bit.value = 1);
+      }
 
-    //let wordsToAllocate Check if the starting point is wordsToAllocate
-    let wordsToAllocate: Word[] = words.slice(startIndex, startIndex + amountToAllocate);
-    const AllocationIsPossible = amountToAllocate > 0 &&
-      wordsToAllocate.length >= amountToAllocate &&
-      wordsToAllocate.every(word => !allocatedWords.includes(word))
+      // Update the state
+      setWords((prevState) => {
+        return prevState.map((word) => {
+          if (word.address === firstWordWithAvailbeSpace!.address) {
+            return firstWordWithAvailbeSpace!;
+          } else {
+            return word;
+          }
+        });
+      });
 
-    if (AllocationIsPossible) {
-      // set the color
-      // Allocation is possible
-      setAllocatedWords([...allocatedWords, ...wordsToAllocate]);
-      setGroupedWords([...groupedWords, { words: wordsToAllocate, color: `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})` }])
+      // If all the bits are set, add the word to the allocated words
+      words.forEach((word) => {
+        if (word.bits.every((bit) => bit.value === 1)) {
+          setAllocatedWords([...allocatedWords, word]);
+        }
+      })
+
+
+      // Group the words
+      const groups: WordGroup[] = [{ words: [firstWordWithAvailbeSpace!], color: `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})` }];
+      setGroupedWords([...groupedWords, ...groups]);
 
     } else {
-      // show error
-      // Allocation is NOT possible
+      // TODO: Need to figure out what to do if users want to allocate more than 4 bytes
       setShowError(true);
+      return;
     }
-    debugger
   }
 
   // handle the free click
@@ -138,7 +169,12 @@ function App() {
   }
 
 
-
+  function getAllocatedBitCount(): number {
+    return allocatedWords.reduce((count, word) => {
+      console.log("", count)
+      return count + word.bits.filter((bit) => bit.value === 1).length;
+    }, 0);
+  }
 
   return (
     <>
@@ -160,11 +196,10 @@ function App() {
         <div className='virtual-memory-container'>
           <div className="allocation-container">
             {groupedWords && groupedWords.length > 0 && groupedWords.map((group, index) => {
-              const abyte = 8;
-              const bitCount = amountToAllocate * abyte;
+              let ff = getAllocatedBitCount()
               return (
                 <div>
-                  <p className="allocation-text" style={{ color: group.color }}>P{index} = {amountToAllocate} bytes ({bitCount} bits)</p>
+                  <p className="allocation-text" style={{ color: group.color }}>P{index} = {ff/8} bytes ( {ff} bits)</p>
                 </div>
               );
             })}

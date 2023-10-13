@@ -34,7 +34,6 @@ function Box({ box, color, selected, handleClickOnBox }: BoxProps) {
     }
 
     function handleMouseLeave() {
-        debugger
         setShowBits(false);
     }
 
