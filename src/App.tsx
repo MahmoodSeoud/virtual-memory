@@ -20,8 +20,11 @@ export type Bit = {
 }
 
 const ALLOCATION_CONSTANTS = {
-  WORD_SIZE_32BIT: 4,
-  WORD_SIZE_64BIT: 8,
+  BYTES_IN_32BIT_WORD: 4, // bytes 
+  WORD_SIZE_64BIT: 8, // bytes
+  BITS_IN_BYTE: 8,
+  BIT_IN_WORD_32BIT: 32,
+  BIT_IN_WORD_64BIT: 64,
 } as const;
 
 
@@ -30,13 +33,15 @@ function getRandomColor(): string {
 }
 
 
-export function createAdddress(address: number, wordSize: number, byteSize: number, baseNumber: number = 16): Word[] {
+export function createAdddress(address: number, amountOfAdresses: number, wordSizeBytes: number, baseNumber: number = 16): Word[] {
   /* 
   address : The address in which the virtual memory should start from
-  wordSize : number of address words that should be present
+  amountOfAdresses : number of address words that should be present
+  
   baseNumber : The base number (default is 16 for hexadecimal)
   */
-  const bitsInWord = wordSize * byteSize;
+  const bitsInWord = amountOfAdresses * wordSizeBytes;
+  console.log(bitsInWord)
   const addressArr: Word[] = [];
   let basePrefix = "";
   switch (baseNumber) {
@@ -50,7 +55,8 @@ export function createAdddress(address: number, wordSize: number, byteSize: numb
       break;
   }
 
-  for (let i = 0; i < bitsInWord; i += byteSize) {
+  // Word hopping 
+  for (let i = 0; i < bitsInWord * ALLOCATION_CONSTANTS.BYTES_IN_32BIT_WORD; i += ALLOCATION_CONSTANTS.BIT_IN_WORD_32BIT) {
     const wordAddress: number = address + i
     const wordAddressStr: string = basePrefix + (address + i).toString(baseNumber);
     const bits: Bit[] = [];
@@ -92,7 +98,7 @@ function App() {
 
 
   useEffect(() => {
-    const words = createAdddress(12222, ALLOCATION_CONSTANTS.WORD_SIZE_32BIT, 8);
+    const words = createAdddress(12222, 8, ALLOCATION_CONSTANTS.BYTES_IN_32BIT_WORD);
     setWords(words);
 
   }, [])
