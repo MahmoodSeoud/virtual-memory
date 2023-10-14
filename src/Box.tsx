@@ -14,11 +14,20 @@ interface BitBoxProps {
 
 
 function BitBox({ bits }: BitBoxProps) {
+
     return (
         <div className='bit-box'>
-            {bits.map((bit, index) => (
-                <div key={index} className={`bit ${bit.value === 1 ? 'bit-set' : 'bit-unset'}`}>{bit.address}</div>
-            ))}
+            {
+                bits.map((bit, index) => {
+                    const color = bit.value === 1 ? bit.color : 'transparent';
+                    return (
+
+                        <div key={index} className={'bit'} style={{ backgroundColor: color }}>{bit.address}</div>
+
+                    )
+
+                }
+                )}
         </div>
     );
 }
@@ -59,21 +68,21 @@ function Box({ box, color, selected, handleClickOnBox }: BoxProps) {
     selected ? style = { backgroundColor: color } : null
 
     return (
-       <div className='box-container'>
-      {showBits && <BitBox bits={box.bits} key={1} />}
-      <div
-        className={classNameBox}
-        style={style}
-        onClick={handleHighlight}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <div className='box-content'>
-          {/* Display only the first address of the bit on the word */}
-          {box.bits[0].address}
+        <div className='box-container'>
+            {showBits && <BitBox bits={box.bitsGroup.bits} key={1} />}
+            <div
+                className={classNameBox}
+                style={style}
+                onClick={handleHighlight}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+            >
+                <div className='box-content'>
+                    {/* Display only the first address of the bit on the word */}
+                    {box.bitsGroup.bits[0].address}
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
     );
 }
 
