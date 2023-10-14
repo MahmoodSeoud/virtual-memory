@@ -4,12 +4,12 @@ import './vm.css'
 import Words from './Words'
 
 export type BitGroup = {
-  bits: Bit[]; // 8 bits
   color: string;
+  bitCount: number;
 }
 
 export type Word = {
-  bitsGroups: BitGroup[]; // 4 bytes
+  bits: Bit[];
   address: string;
   color: string;
 }
@@ -70,8 +70,8 @@ export function createAdddress(address: number, amountOfAdresses: number, wordSi
 
     const bits: Bit[] = [];
     const bitGroup: BitGroup = {
-      bits: bits,
-      color: bitGroupColor
+      color: bitGroupColor,
+      bitCount: wordSizeBits
     }
 
     for (let j = 0; j < wordSizeBits; j++) {
@@ -87,7 +87,7 @@ export function createAdddress(address: number, amountOfAdresses: number, wordSi
     bitGroups.push(bitGroup);
 
     wordAdresses.push({
-      bitsGroups: bitGroups,
+      bits: bits,
       address: wordAddressStr,
       color: wordGroupColor
     });
@@ -141,7 +141,12 @@ function App() {
     }
     return true;
   }
-
+  function getAllocatedBitCount(): number {
+    return words.reduce((totalBits, word) => {
+      const allocatedBits = word.bits.filter(bit => bit.value === 1);
+      return totalBits + allocatedBits.length;
+    }, 0);
+  }
   // handle the malloc click
   function handleAllocateClick() {
     let index = 0;
@@ -152,16 +157,10 @@ function App() {
       const firstWordWithAvailbeSpace = words.find((word) => {
 
         // Find the first index of the first available bit
-        index = word.bitsGroups.findIndex((group) => group.bits.every((bit) => bit.value === 0))
+        index = word.bits.findIndex((bit) => bit.value === 0)
+
         // Check if there is enough space for the amount of bytes
-
-        // bitGroups = [[...8 bits], [... 8bits], [... 8 bits], [... 8bits]]
-        //value === 0
-        // sum of all the bits in the bitGroups
-        // is >= amountToAllocate * ALLOCATION_CONSTANTS.BITS_IN_BYTE
-        const allUnAlloctedBytes = word.bitsGroups.filter((group) => group.bits.every((bit) => bit.value === 0))
-        const hasEnoughSpace = allUnAlloctedBytes.length * ALLOCATION_CONSTANTS.BITS_IN_BYTE >= amountToAllocate * ALLOCATION_CONSTANTS.BITS_IN_BYTE;
-
+        const hasEnoughSpace = word.bits.length - index >= amountToAllocate * 8
 
         return index !== -1 && hasEnoughSpace;
       })
@@ -173,8 +172,8 @@ function App() {
 
       // Set the bits to 1 if there is enough space
       firstWordWithAvailbeSpace
-        .bitsGroup.bits
-        .slice(index, index + amountToAllocate * ALLOCATION_CONSTANTS.BITS_IN_BYTE)
+        .bits
+        .slice(index, index + amountToAllocate * 8)
         .map((bit) => bit.value = 1);
 
       // debugger;
@@ -193,15 +192,15 @@ function App() {
 
       // If all the bits are set, add the word to the allocated words
       words.forEach((word) => {
-        if (word.bitsGroups.bits.every((bit) => bit.value !== 0)) {
+        if (word.bits.every((bit) => bit.value !== 0)) {
           setAllocatedWords([...allocatedWords, word]);
         }
         // Else Do Nothing
       })
       // Group the words
       const groups: BitGroup[] = [{
-        bits: firstWordWithAvailbeSpace.bitsGroup.bits.slice(index, index + amountToAllocate * ALLOCATION_CONSTANTS.BITS_IN_BYTE),
-        color: firstWordWithAvailbeSpace.color
+        color: getRandomColor(),
+        bitCount: getAllocatedBitCount()
       }];
       setGroupedBits([...groupedBits, ...groups]);
 
@@ -247,7 +246,7 @@ function App() {
             {groupedBits && groupedBits.length > 0 && groupedBits.map((group, index) => (
               <div key={index}>
                 <p className="allocation-text" style={{ color: group.color }}>
-                  P{index} = {group.bits.length / 8} bytes ({group.bits.length} bits)
+                  P{index} = {group.bitCount / 8} bytes ({group.bitCount} bits)
                 </p>
               </div>
             ))}

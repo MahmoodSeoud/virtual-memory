@@ -69,7 +69,7 @@ function Box({ box, color, selected, handleClickOnBox }: BoxProps) {
 
     return (
         <div className='box-container'>
-            {showBits && <BitBox bits={box.bitsGroup.bits} key={1} />}
+            {showBits && <BitBox bits={box.bits} key={1} />}
             <div
                 className={classNameBox}
                 style={style}
@@ -79,7 +79,7 @@ function Box({ box, color, selected, handleClickOnBox }: BoxProps) {
             >
                 <div className='box-content'>
                     {/* Display only the first address of the bit on the word */}
-                    {box.bitsGroup.bits[0].address}
+                    {box.bits[0].address}
                 </div>
             </div>
         </div>
