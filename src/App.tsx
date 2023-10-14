@@ -35,7 +35,40 @@ function getRandomColor(): string {
 }
 
 
-export function createAdddress(address: number, amountOfAdresses: number, wordSizeBits: number, baseNumber: number = 16): Word[] {
+
+
+
+
+function App() {
+  const [allocatedWords, setAllocatedWords] = useState<Word[]>([]);
+  const [amountToAllocate, setAmountToAllocate] = useState<number>(0);
+  const [words, setWords] = useState<Word[]>([]);
+  const [highlightedWords, setHighlightedWords] = useState<Word[]>([]);
+  const [showError, setShowError] = useState<boolean>(false);
+  const [groupedBits, setGroupedBits] = useState<BitGroup[]>([]);
+
+
+  useEffect(() => {
+    setShowError(false);
+  }, [amountToAllocate])
+
+
+  useEffect(() => {
+    console.log("words", words)
+    console.log('allocatedWords', allocatedWords)
+    console.log("Groupedwords", groupedBits)
+  }, [words, allocatedWords, groupedBits])
+
+
+  useEffect(() => {
+    const words = createAdddress(12222, 8, ALLOCATION_CONSTANTS.BIT_IN_WORD_32BIT);
+    setWords(words);
+
+  }, [])
+
+
+
+  function createAdddress(address: number, amountOfAdresses: number, wordSizeBits: number, baseNumber: number = 16): Word[] {
   /* 
   address : The address in which the virtual memory should start from
   amountOfAdresses : number of address words that should be present
@@ -71,7 +104,7 @@ export function createAdddress(address: number, amountOfAdresses: number, wordSi
     const bits: Bit[] = [];
     const bitGroup: BitGroup = {
       color: bitGroupColor,
-      bitCount: wordSizeBits
+      bitCount: getAllocatedBitCount()
     }
 
     for (let j = 0; j < wordSizeBits; j++) {
@@ -94,37 +127,6 @@ export function createAdddress(address: number, amountOfAdresses: number, wordSi
   }
   return wordAdresses;
 }
-
-
-
-function App() {
-  const [allocatedWords, setAllocatedWords] = useState<Word[]>([]);
-  const [amountToAllocate, setAmountToAllocate] = useState<number>(0);
-  const [words, setWords] = useState<Word[]>([]);
-  const [highlightedWords, setHighlightedWords] = useState<Word[]>([]);
-  const [showError, setShowError] = useState<boolean>(false);
-  const [groupedBits, setGroupedBits] = useState<BitGroup[]>([]);
-
-
-  useEffect(() => {
-    setShowError(false);
-  }, [amountToAllocate])
-
-
-  useEffect(() => {
-    console.log("words", words)
-    console.log('allocatedWords', allocatedWords)
-    console.log("Groupedwords", groupedBits)
-  }, [words, allocatedWords, groupedBits])
-
-
-  useEffect(() => {
-    const words = createAdddress(12222, 8, ALLOCATION_CONSTANTS.BIT_IN_WORD_32BIT);
-    setWords(words);
-
-  }, [])
-
-
   function handleClickOnBox(word: Word): boolean {
 
     if (!allocatedWords.includes(word)) {
@@ -140,12 +142,6 @@ function App() {
       setHighlightedWords([...highlightedWords, word])
     }
     return true;
-  }
-  function getAllocatedBitCount(): number {
-    return words.reduce((totalBits, word) => {
-      const allocatedBits = word.bits.filter(bit => bit.value === 1);
-      return totalBits + allocatedBits.length;
-    }, 0);
   }
   // handle the malloc click
   function handleAllocateClick() {
@@ -213,6 +209,12 @@ function App() {
   }
 
 
+  function getAllocatedBitCount(): number {
+    return words.reduce((totalBits, word) => {
+      const allocatedBits = word.bits.filter(bit => bit.value === 1);
+      return totalBits + allocatedBits.length;
+    }, 0);
+  }
 
 
   // handle the free click
