@@ -3,14 +3,15 @@ import './App.css'
 import './vm.css'
 import Words from './Words'
 
-export type WordGroup = {
-  words: Word[]
+export type BitGroup = {
+  bitCount: number;
   color: string;
 }
 
 export type Word = {
   bits: Bit[];
   address: string;
+  color: string;
 }
 
 export type Bit = {
@@ -22,6 +23,11 @@ const ALLOCATION_CONSTANTS = {
   WORD_SIZE_32BIT: 4,
   WORD_SIZE_64BIT: 8,
 } as const;
+
+
+function getRandomColor(): string {
+  return `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`;
+}
 
 
 export function createAdddress(address: number, wordSize: number, byteSize: number, baseNumber: number = 16): Word[] {
@@ -55,7 +61,8 @@ export function createAdddress(address: number, wordSize: number, byteSize: numb
     }
     addressArr.push({
       bits,
-      address: wordAddressStr
+      address: wordAddressStr,
+      color: getRandomColor()
     });
   }
   return addressArr;
@@ -66,11 +73,11 @@ export function createAdddress(address: number, wordSize: number, byteSize: numb
 function App() {
   const [allocatedWords, setAllocatedWords] = useState<Word[]>([]);
   const [amountToAllocate, setAmountToAllocate] = useState<number>(0);
-  const [words, setWords] = useState<Word[]>(createAdddress(12222, ALLOCATION_CONSTANTS.WORD_SIZE_32BIT, 8));
-  //const [bits, setBits] = useState<Bit[]>(createAdddress(12222, 32))
+  const [words, setWords] = useState<Word[]>([]);
   const [highlightedWords, setHighlightedWords] = useState<Word[]>([]);
   const [showError, setShowError] = useState<boolean>(false);
-  const [groupedWords, setGroupedWords] = useState<WordGroup[]>([]);
+  const [groupedBits, setGroupedBits] = useState<BitGroup[]>([]);
+
 
   useEffect(() => {
     setShowError(false);
@@ -79,8 +86,16 @@ function App() {
 
   useEffect(() => {
     console.log("words", words)
-    console.log("Groupedwords", groupedWords)
-  }, [words, groupedWords])
+    console.log('allocatedWords', allocatedWords)
+    console.log("Groupedwords", groupedBits)
+  }, [words, allocatedWords, groupedBits])
+
+
+  useEffect(() => {
+    const words = createAdddress(12222, ALLOCATION_CONSTANTS.WORD_SIZE_32BIT, 8);
+    setWords(words);
+
+  }, [])
 
 
   function handleClickOnBox(word: Word): boolean {
@@ -122,19 +137,17 @@ function App() {
 
 
       // Set the bits to 1 if there is enough space
-      if (firstWordWithAvailbeSpace.bits.length - index >= amountToAllocate * 8) {
+      firstWordWithAvailbeSpace
+        .bits
+        .slice(index, index + amountToAllocate * 8)
+        .map((bit) => bit.value = 1);
 
-        firstWordWithAvailbeSpace!
-          .bits
-          .slice(index, index + amountToAllocate * 8)
-          .map((bit) => bit.value = 1);
-      }
 
       // Update the state
       setWords((prevState) => {
         return prevState.map((word) => {
-          if (word.address === firstWordWithAvailbeSpace!.address) {
-            return firstWordWithAvailbeSpace!;
+          if (word.address === firstWordWithAvailbeSpace.address) {
+            return firstWordWithAvailbeSpace;
           } else {
             return word;
           }
@@ -143,15 +156,18 @@ function App() {
 
       // If all the bits are set, add the word to the allocated words
       words.forEach((word) => {
-        if (word.bits.every((bit) => bit.value === 1)) {
+        if (word.bits.every((bit) => bit.value !== 0)) {
           setAllocatedWords([...allocatedWords, word]);
         }
+        // Else Do Nothing
       })
-
-
       // Group the words
-      const groups: WordGroup[] = [{ words: [firstWordWithAvailbeSpace!], color: `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})` }];
-      setGroupedWords([...groupedWords, ...groups]);
+      const groups: BitGroup[] = [{
+        color: getRandomColor(),
+        bitCount: getAllocatedBitCount(),
+      }];
+      setGroupedBits([...groupedBits, ...groups]);
+
 
     } else {
       // TODO: Need to figure out what to do if users want to allocate more than 4 bytes
@@ -160,21 +176,27 @@ function App() {
     }
   }
 
+
+
+
   // handle the free click
   function handleFreeClick() {
-    debugger
     const remaining = allocatedWords.filter(word => !highlightedWords.includes(word));
     setAllocatedWords(remaining);
     setHighlightedWords([]);
   }
 
 
+
+
   function getAllocatedBitCount(): number {
-    return allocatedWords.reduce((count, word) => {
-      console.log("", count)
-      return count + word.bits.filter((bit) => bit.value === 1).length;
+    return words.reduce((totalBits, word) => {
+      const allocatedBits = word.bits.filter(bit => bit.value === 1);
+      return totalBits + allocatedBits.length;
     }, 0);
   }
+
+
 
   return (
     <>
@@ -195,27 +217,25 @@ function App() {
 
         <div className='virtual-memory-container'>
           <div className="allocation-container">
-            {groupedWords && groupedWords.length > 0 && groupedWords.map((group, index) => {
-              let ff = getAllocatedBitCount()
-              return (
-                <div>
-                  <p className="allocation-text" style={{ color: group.color }}>P{index} = {ff/8} bytes ( {ff} bits)</p>
-                </div>
-              );
-            })}
-
+            {groupedBits && groupedBits.length > 0 && groupedBits.map((group, index) => (
+              <div key={index}>
+                <p className="allocation-text" style={{ color: group.color }}>
+                  P{index} = {group.bitCount/8} bytes ({group.bitCount} bits)
+                </p>
+              </div>
+            ))}
           </div>
+
           <div className='block-container'>
             {words && words.length > 0 && words.map((word, index) => {
               const allocated = allocatedWords.includes(word);
-              const group = groupedWords.find(group => group.words.includes(word));
-              const color = allocated && group ? group.color : 'transparent';
+
               return (
                 <>
                   <Words
                     key={index + 1}
                     box={word}
-                    color={color}
+                    color={word.color}
                     handleClickOnBox={handleClickOnBox}
                     selected={allocated}
                   />
@@ -261,3 +281,4 @@ function App() {
 }
 
 export default App
+
