@@ -98,7 +98,7 @@ function App() {
 
       const bits: Bit[] = [];
       const bitGroup: BitGroup = {
-        bitCount: words.flatMap(word => word.bits.filter(bit => bit.value ===1)).length
+        bitCount: words.flatMap(word => word.bits.filter(bit => bit.value === 1)).length
       }
 
       for (let j = 0; j < wordSizeBits; j++) {
@@ -115,7 +115,7 @@ function App() {
       wordAdresses.push({
         bits: bits,
         address: wordAddressStr,
-        color: 'olivedrab'
+        color: ''
       });
 
     }
@@ -160,7 +160,19 @@ function App() {
         bit.color = bitGroupColor
       });
 
-
+    const bitColors = [...words].map(word => word.bits.filter(bit => bit.value === 1).map(bit => bit.color));
+    const uniqueColors = bitColors.map((color) => [...new Set(color)]);
+    
+    // Set the color of the word to the color of the bit
+    [...words].forEach((word, index) => {
+      const isAllocated = word.bits.some((bit) => bit.value === 1)
+      if (isAllocated) {
+        debugger
+        const uniqueColorStr = `linear-gradient(to right, ${uniqueColors[index].toString().replaceAll(',', ', ')})`;
+        word.color = uniqueColorStr;
+      }
+    })
+    
     // If some bit are set to 1, add the word to the allocated words
     const tempAllocatedWords: Word[] = [];
     words.forEach((word) => {
@@ -169,6 +181,7 @@ function App() {
         tempAllocatedWords.push(word)
       }
     });
+
 
     setAllocatedWords([...allocatedWords, ...tempAllocatedWords]);
 
