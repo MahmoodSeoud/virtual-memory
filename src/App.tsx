@@ -31,7 +31,7 @@ const ALLOCATION_CONSTANTS = {
 
 
 function getRandomColor(): string {
-  return `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1) 25%`;
+  return `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`;
 }
 
 
@@ -160,13 +160,13 @@ function App() {
         bit.color = bitGroupColor
       });
 
+
     const bitColors = [...words]
       .map(word => word.bits
         .filter(bit => bit.value === 1)
         .map(bit => bit.color));
-    const uniqueColors = bitColors.flatMap((color) => [...new Set(color)])
-
-    const RGB_FILLERS = ['rgba(0,0,0,0) 25%', 'rgba(0,0,0,0) 25%', 'rgba(0,0,0,0) 25%', 'rgba(0,0,0,0) 25%'];
+    const uniqueColors = bitColors.map((color) => [...new Set(color)])
+    const RGB_FILLERS = [];
 
     // Set the color of the word to the color of the bit
     [...words].forEach((word) => {
@@ -176,9 +176,9 @@ function App() {
       if (isAllocated) {
         uniqueColors // `linear-gradient(to right, red 50%, green 50%)
 
-        uniqueColors.map((color, index) => { RGB_FILLERS[index] = color});
-
-        const uniqueColorStr = `linear-gradient(to right, ${RGB_FILLERS.map((color) => ` ${color}`)})`;
+        uniqueColors.map((color, index) => { RGB_FILLERS[index] = color });
+        debugger
+        const uniqueColorStr = `linear-gradient(to right, ${RGB_FILLERS[0]} 0%, ${RGB_FILLERS[1]} 25%, ${RGB_FILLERS[1]} 50%, ${RGB_FILLERS} 75%)`;
         word.color = uniqueColorStr;
       }
     })
