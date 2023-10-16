@@ -61,7 +61,6 @@ function Box({ box, color, selected, handleClickOnBox }: BoxProps) {
 
 
     let classNameBox = 'box';
-    selected ? classNameBox = 'box selected-box' : null;
     selected && clicked ? classNameBox = 'box highlighted-box' : null;
 
     let style = {}

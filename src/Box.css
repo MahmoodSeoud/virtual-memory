@@ -22,11 +22,6 @@
     user-select: none;
 }
 
-
-.selected-box{
-  background-color: olivedrab;
-}
-
 .highlighted-box {
   background-color: rgb(11, 99, 129) !important;
 }
@@ -57,7 +52,7 @@
   justify-content: center;
   align-items: center;
   background: transparent;
-  margin: .2em 0;
+  margin: .2em .1em;
 }
 
 .bit:hover {
@@ -72,10 +67,11 @@
   justify-content: center;
   align-items: center;
   z-index: 5;
-  background-color: rgb(95, 158, 160, 75%);
+  background-color: black;
   transform: translate(-47%, -110%);
   border: 1px solid white;
-  width: 70em;
+  width: 75em;
+  height: 25em;
   flex-wrap: wrap;
   padding: .7em;
   border-radius: .25em;

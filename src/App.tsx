@@ -4,21 +4,21 @@ import './vm.css'
 import Words from './Words'
 
 export type BitGroup = {
-  color: string;
+  color?: string;
   bitCount: number;
 }
 
 export type Word = {
   bits: Bit[];
   address: string;
-  color: string;
+  color?: string;
 }
 
 
 export type Bit = {
   address: string;
   value: number;
-  color: BitGroup['color'];
+  color?: string;
 }
 
 const ALLOCATION_CONSTANTS = {
@@ -33,10 +33,6 @@ const ALLOCATION_CONSTANTS = {
 function getRandomColor(): string {
   return `rgb(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)})`;
 }
-
-
-
-
 
 
 function App() {
@@ -54,6 +50,7 @@ function App() {
 
 
   useEffect(() => {
+    console.log('----------------')
     console.log("words", words)
     console.log('allocatedWords', allocatedWords)
     console.log("Groupedwords", groupedBits)
@@ -69,64 +66,64 @@ function App() {
 
 
   function createAdddress(address: number, amountOfAdresses: number, wordSizeBits: number, baseNumber: number = 16): Word[] {
-  /* 
-  address : The address in which the virtual memory should start from
-  amountOfAdresses : number of address words that should be present
-  wordSizeBits : the size of the word in the current system in bits
-  baseNumber : The base number (default is 16 for hexadecimal)
-  */
-  const amountOfWordsBits = amountOfAdresses * wordSizeBits;
-  const wordAdresses: Word[] = [];
+    /* 
+    address : The address in which the virtual memory should start from
+    amountOfAdresses : number of address words that should be present
+    wordSizeBits : the size of the word in the current system in bits
+    baseNumber : The base number (default is 16 for hexadecimal)
+    */
+    const amountOfWordsBits = amountOfAdresses * wordSizeBits;
+    const wordAdresses: Word[] = [];
 
-  let basePrefix = "";
-  switch (baseNumber) {
-    case 2:
-      basePrefix = "0b";
-      break;
-    case 10:
-      // do nothing as we don't use prefix
-      break
-    case 16:
-      basePrefix = "0x";
-      break;
-    default:
-      break;
-  }
-
-  const bitGroups: BitGroup[] = [];
-
-  for (let i = 0; i < amountOfWordsBits; i += wordSizeBits) {
-    const bitGroupColor = getRandomColor();
-    const wordGroupColor = getRandomColor();
-    const wordAddress: number = address + i
-    const wordAddressStr: string = basePrefix + (address + i).toString(baseNumber);
-
-    const bits: Bit[] = [];
-    const bitGroup: BitGroup = {
-      color: bitGroupColor,
-      bitCount: getAllocatedBitCount()
+    let basePrefix = "";
+    switch (baseNumber) {
+      case 2:
+        basePrefix = "0b";
+        break;
+      case 10:
+        // do nothing as we don't use prefix
+        break
+      case 16:
+        basePrefix = "0x";
+        break;
+      default:
+        break;
     }
 
-    for (let j = 0; j < wordSizeBits; j++) {
-      const bitAddress = basePrefix + (wordAddress + j).toString(baseNumber);
+    const bitGroups: BitGroup[] = [];
 
-      bits.push({
-        address: bitAddress,
-        value: 0,
-        color: bitGroupColor
+    for (let i = 0; i < amountOfWordsBits; i += wordSizeBits) {
+      const wordAddress: number = address + i
+      const wordAddressStr: string = basePrefix + (address + i).toString(baseNumber);
+
+      const bits: Bit[] = [];
+      const bitGroup: BitGroup = {
+        bitCount: words.flatMap(word => word.bits.filter(bit => bit.value ===1)).length
+      }
+
+      for (let j = 0; j < wordSizeBits; j++) {
+        const bitAddress = basePrefix + (wordAddress + j).toString(baseNumber);
+
+        bits.push({
+          address: bitAddress,
+          value: 0,
+        });
+      }
+
+      bitGroups.push(bitGroup);
+
+      wordAdresses.push({
+        bits: bits,
+        address: wordAddressStr,
+        color: 'olivedrab'
       });
+
     }
-
-    bitGroups.push(bitGroup);
-
-    wordAdresses.push({
-      bits: bits,
-      address: wordAddressStr,
-      color: wordGroupColor
-    });
+    return wordAdresses;
   }
-  return wordAdresses;
-}
+
+
+
   function handleClickOnBox(word: Word): boolean {
 
     if (!allocatedWords.includes(word)) {
@@ -143,78 +140,50 @@ function App() {
     }
     return true;
   }
+
+
   // handle the malloc click
   function handleAllocateClick() {
-    let index = 0;
-    // debugger
+    const bitGroupColor = getRandomColor();
 
-    // Can only as of now allocate maximum 4 bytes in one go
-    if (amountToAllocate <= 4) {
-      const firstWordWithAvailbeSpace = words.find((word) => {
+    const availableBits = [...words].flatMap((word) => {
+      return word.bits.filter(bit => bit.value === 0)
+    });
 
-        // Find the first index of the first available bit
-        index = word.bits.findIndex((bit) => bit.value === 0)
-
-        // Check if there is enough space for the amount of bytes
-        const hasEnoughSpace = word.bits.length - index >= amountToAllocate * 8
-
-        return index !== -1 && hasEnoughSpace;
-      })
-
-      if (!firstWordWithAvailbeSpace) {
-        setShowError(true);
-        return;
-      }
-
-      // Set the bits to 1 if there is enough space
-      firstWordWithAvailbeSpace
-        .bits
-        .slice(index, index + amountToAllocate * 8)
-        .map((bit) => bit.value = 1);
-
-      // debugger;
-
-
-      // Update the state
-      setWords((prevState) => {
-        return prevState.map((word) => {
-          if (word.address === firstWordWithAvailbeSpace.address) {
-            return firstWordWithAvailbeSpace;
-          } else {
-            return word;
-          }
-        });
+    const fstAvailableBitIndex = availableBits.indexOf(availableBits[0]);
+    availableBits
+      .slice(fstAvailableBitIndex,
+        fstAvailableBitIndex + amountToAllocate * ALLOCATION_CONSTANTS.BITS_IN_BYTE
+      )
+      .forEach(bit => {
+        bit.value = 1;
+        bit.color = bitGroupColor
       });
 
-      // If all the bits are set, add the word to the allocated words
-      words.forEach((word) => {
-        if (word.bits.every((bit) => bit.value !== 0)) {
-          setAllocatedWords([...allocatedWords, word]);
-        }
-        // Else Do Nothing
-      })
-      // Group the words
-      const groups: BitGroup[] = [{
-        color: getRandomColor(),
-        bitCount: getAllocatedBitCount()
-      }];
-      setGroupedBits([...groupedBits, ...groups]);
+
+    // If some bit are set to 1, add the word to the allocated words
+    const tempAllocatedWords: Word[] = [];
+    words.forEach((word) => {
+
+      if (word.bits.some((bit) => bit.value === 1)) {
+        tempAllocatedWords.push(word)
+      }
+    });
+
+    setAllocatedWords([...allocatedWords, ...tempAllocatedWords]);
+
+    // Group the words
+    const groups: BitGroup = {
+      color: bitGroupColor,
+      bitCount: words.flatMap(word => word.bits).length
+    };
+
+    setGroupedBits([...groupedBits, groups]);
 
 
-    } else {
-      // TODO: Need to figure out what to do if users want to allocate more than 4 bytes
-      setShowError(true);
-      return;
-    }
   }
 
 
-  function getAllocatedBitCount(): number {
-    return words.reduce((totalBits, word) => {
-      const allocatedBits = word.bits.filter(bit => bit.value === 1);
-      return totalBits + allocatedBits.length;
-    }, 0);
-  }
 
 
   // handle the free click
@@ -248,7 +217,7 @@ function App() {
             {groupedBits && groupedBits.length > 0 && groupedBits.map((group, index) => (
               <div key={index}>
                 <p className="allocation-text" style={{ color: group.color }}>
-                  P{index} = {group.bitCount / 8} bytes ({group.bitCount} bits)
+                  P{index} = {group.bitCount / 32} bytes ({group.bitCount} bits)
                 </p>
               </div>
             ))}
@@ -261,11 +230,11 @@ function App() {
               return (
                 <>
                   <Words
-                    key={index + 1}
-                    box={word}
+                    key={index}
+                    word={word}
                     color={word.color}
                     handleClickOnBox={handleClickOnBox}
-                    selected={allocated}
+                    allocated={allocated}
                   />
                 </>
               );
