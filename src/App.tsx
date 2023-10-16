@@ -168,7 +168,8 @@ function App() {
       const isAllocated = word.bits.some((bit) => bit.value === 1)
       if (isAllocated) {
         debugger
-        const uniqueColorStr = `linear-gradient(to right, ${uniqueColors[index].toString().replaceAll(',', ', ')})`;
+        const colorPercentile: string = 100 / uniqueColors[index].length + '%'
+      const uniqueColorStr =  `linear-gradient(to right, ${uniqueColors[index].map((color) => `${color} ${colorPercentile}`).join(', ')})`;
         word.color = uniqueColorStr;
       }
     })
