@@ -177,8 +177,10 @@ function App() {
         uniqueColors // `linear-gradient(to right, red 50%, green 50%)
 
         uniqueColors.map((color, index) => { RGB_FILLERS[index] = color });
+        let  uniqueColorStr = `linear-gradient(to right, ${ RGB_FILLERS[0][0]&& RGB_FILLERS[0][0].length > 0 && (RGB_FILLERS[0][0] + " 0%")}, ${RGB_FILLERS[0][1] && RGB_FILLERS[0][1].length > 0 && (RGB_FILLERS[0][1] + " 25%")}, ${ RGB_FILLERS[0][2] && RGB_FILLERS[0][2].length > 0 && (RGB_FILLERS[2] + " 50%")}, ${ RGB_FILLERS[3].length > 0 && RGB_FILLERS[3].length > 0 && (RGB_FILLERS[3] + " 75%")}`
+        uniqueColorStr =  uniqueColorStr.replaceAll(', false', '');
+        uniqueColorStr =  uniqueColorStr.replaceAll(', undefined', '');
         debugger
-        const uniqueColorStr = `linear-gradient(to right, ${RGB_FILLERS[0]} 0%, ${RGB_FILLERS[1]} 25%, ${RGB_FILLERS[1]} 50%, ${RGB_FILLERS} 75%)`;
         word.color = uniqueColorStr;
       }
     })

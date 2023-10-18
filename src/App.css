@@ -64,8 +64,7 @@
 
 .allocation-container {
   margin: 1em;
-  height: 40em;
-  height: 60em;
+  height: 60vh;
   padding: 1em;
   width: 12em;
   font-weight: bold;
